@@ -1,0 +1,48 @@
+shopware:
+  filesystem:
+    public:
+      type: "amazon-s3"
+      url: "%env(S3_PUBLIC_URL)%"
+      config:
+        bucket: "%env(S3_BUCKET)%"
+        region: "%env(S3_REGION)%"
+        endpoint: "%env(S3_ENDPOINT)%"
+        use_path_style_endpoint: true
+        credentials:
+          key: "%env(S3_ACCESS_KEY)%"
+          secret: "%env(S3_SECRET_KEY)%"
+    private:
+      type: "amazon-s3"
+      visibility: "private"
+      config:
+        bucket: "%env(S3_BUCKET_PRIVATE)%"
+        region: "%env(S3_REGION)%"
+        endpoint: "%env(S3_ENDPOINT)%"
+        use_path_style_endpoint: true
+        credentials:
+          key: "%env(S3_ACCESS_KEY)%"
+          secret: "%env(S3_SECRET_KEY)%"
+    theme:
+      type: "local"
+      url: "%env(APP_URL)%"
+      config:
+        root: "%kernel.project_dir%/public"
+    asset:
+      type: "local"
+      url: "%env(APP_URL)%"
+      config:
+        root: "%kernel.project_dir%/public"
+    sitemap:
+      type: "local"
+      url: "%env(APP_URL)%"
+      config:
+        root: "%kernel.project_dir%/public"
+
+framework:
+  cache:
+    app: cache.adapter.redis_tag_aware
+    system: cache.adapter.redis_tag_aware
+    default_redis_provider: "%env(REDIS_URL)%"
+  session:
+    handler_id: "%env(REDIS_URL)%/1"
+  lock: "%env(LOCK_DSN)%"
