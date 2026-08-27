@@ -9,6 +9,7 @@ var/cache
 var/log
 var/sessions
 var/tmp
+var/composer-home
 
 files
 public/bundles

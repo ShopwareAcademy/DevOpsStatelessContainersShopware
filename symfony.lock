@@ -69,15 +69,6 @@
             ".htaccess"
         ]
     },
-    "shopware/docker-dev": {
-        "version": "0.1",
-        "recipe": {
-            "repo": "github.com/shopware/recipes",
-            "branch": "main",
-            "version": "0.1",
-            "ref": "57033e55feb81da148f8799a58c28dbafbb5d6b2"
-        }
-    },
     "shopware/storefront": {
         "version": "6.7",
         "recipe": {

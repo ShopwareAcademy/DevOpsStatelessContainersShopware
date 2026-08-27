@@ -12,7 +12,7 @@ It demonstrates how to:
 - Keep theme, asset, and sitemap files local for the training setup.
 - Use a `.dockerignore` file to keep generated files out of the Docker build context.
 
-Tested for **Shopware 6.7**.
+Tested for **Shopware 6.7** with the Shopware PHP 8.5 container images.
 
 ## Reference Project
 
@@ -25,13 +25,13 @@ You do not need to run this project to use it as a reference. The most important
 - `.dockerignore`
 - `config/packages/stateless.yaml`
 
-These files show the expected Docker image build, Docker Compose runtime setup, build context cleanup, and stateless Shopware configuration at the end of the lab.
+These files show the expected Docker image build, Docker Compose runtime setup, build context cleanup, and stateless Shopware configuration at the end of the lab. The `compose.yaml` in this repository extends the reduced learning setup from the previous Docker Compose lab; it is not the generated Shopware CLI development setup.
 
 It is not a production template. The credentials, service names, and runtime settings in `compose.yaml` are intentionally simple for local learning.
 
 ## Optional: Run the Project Locally
 
-If you want to run this reference project locally, you still need to build the image, start the containers, and initialize the local Shopware database.
+If you want to run this reference project locally, you still need to build the image, start the containers, create the MinIO buckets, and initialize the local Shopware database. You do not need local PHP or Composer for that; Docker uses the Shopware CLI image during the build.
 
 The Compose setup uses the same host ports as the practical lab:
 
