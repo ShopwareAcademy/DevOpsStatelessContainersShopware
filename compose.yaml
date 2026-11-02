@@ -8,7 +8,6 @@ services:
         environment:
             DATABASE_URL: "mysql://shopware:shopware@database:3306/shopware"
             APP_URL: "http://localhost:8080"
-            APP_SECRET: "devsecret"
             REDIS_URL: "redis://redis:6379"
             LOCK_DSN: "redis://redis:6379/2"
             S3_ENDPOINT: "http://minio:9000"

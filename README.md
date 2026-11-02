@@ -12,7 +12,7 @@ It demonstrates how to:
 - Keep theme, asset, and sitemap files local for the training setup.
 - Use a `.dockerignore` file to keep generated files out of the Docker build context.
 
-Tested for **Shopware 6.7** with the Shopware PHP 8.5 container images.
+Tested with **Shopware 6.7.16.0** and the Shopware PHP 8.5 container images.
 
 ## Reference Project
 
@@ -80,7 +80,7 @@ docker compose ps
 When the `database` service is healthy and the `shopware` service is running, install Shopware inside the application container:
 
 ```bash
-docker compose exec -u82 shopware bin/console system:install --basic-setup --create-database --skip-first-run-wizard
+docker compose exec shopware bin/console system:install --basic-setup --create-database --skip-first-run-wizard
 ```
 
 Compile the theme and clear the HTTP cache:
