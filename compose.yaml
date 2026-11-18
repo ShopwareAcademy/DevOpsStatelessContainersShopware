@@ -10,20 +10,20 @@ services:
             APP_URL: "http://localhost:8080"
             REDIS_URL: "redis://redis:6379"
             LOCK_DSN: "redis://redis:6379/2"
-            S3_ENDPOINT: "http://minio:9000"
+            S3_ENDPOINT: "http://rustfs:9000"
             S3_PUBLIC_URL: "http://localhost:9000/shopware-public"
             S3_BUCKET: "shopware-public"
             S3_BUCKET_PRIVATE: "shopware-private"
             S3_REGION: "eu-central-1"
-            S3_ACCESS_KEY: "minioadmin"
-            S3_SECRET_KEY: "minioadmin"
+            S3_ACCESS_KEY: "rustfsadmin"
+            S3_SECRET_KEY: "rustfsadmin"
         depends_on:
             database:
                 condition: service_healthy
             redis:
                 condition: service_healthy
-            minio:
-                condition: service_started
+            rustfs:
+                condition: service_healthy
 
     database:
         image: mysql:8.4
@@ -54,35 +54,57 @@ services:
             timeout: 5s
             retries: 5
 
-    minio:
-        image: minio/minio:latest
-        command: server /data --console-address ":9001"
+    rustfs:
+        image: rustfs/rustfs:1.0.3
+        command: /data
         ports:
-            - "9000:9000"
-            - "9001:9001"
+            - "127.0.0.1:9000:9000"
+            - "127.0.0.1:9001:9001"
         environment:
-            MINIO_ROOT_USER: minioadmin
-            MINIO_ROOT_PASSWORD: minioadmin
+            RUSTFS_ACCESS_KEY: "rustfsadmin"
+            RUSTFS_SECRET_KEY: "rustfsadmin"
+            RUSTFS_ADDRESS: ":9000"
+            RUSTFS_CONSOLE_ENABLE: "true"
+            RUSTFS_CONSOLE_ADDRESS: ":9001"
         volumes:
-            - minio-data:/data
+            - rustfs-data:/data
+        healthcheck:
+            test: ["CMD-SHELL", "curl --fail http://127.0.0.1:9000/health/ready"]
+            interval: 10s
+            timeout: 5s
+            retries: 10
+            start_period: 20s
 
-    minio-client:
-        image: minio/mc:latest
+    s3-client:
+        image: amazon/aws-cli:2.41.0
         depends_on:
-            - minio
+            rustfs:
+                condition: service_healthy
         profiles:
             - tools
-        entrypoint: [ "/bin/sh", "-c" ]
-        command: >
-            "until mc alias set local http://minio:9000 minioadmin minioadmin; do
-              echo 'Waiting for MinIO...';
-              sleep 2;
-            done;
-            mc mb --ignore-existing local/shopware-public;
-            mc mb --ignore-existing local/shopware-private;
-            mc anonymous set download local/shopware-public"
+        environment:
+            AWS_ACCESS_KEY_ID: "rustfsadmin"
+            AWS_SECRET_ACCESS_KEY: "rustfsadmin"
+            AWS_DEFAULT_REGION: "eu-central-1"
+            AWS_PAGER: ""
+        entrypoint: ["/bin/sh", "-c"]
+        command:
+            - |
+                set -e
+                aws configure set default.s3.addressing_style path
+                until aws --endpoint-url http://rustfs:9000 s3api list-buckets > /dev/null 2>&1; do
+                  echo "Waiting for RustFS..."
+                  sleep 2
+                done
+                aws --endpoint-url http://rustfs:9000 s3api head-bucket --bucket shopware-public 2> /dev/null \
+                  || aws --endpoint-url http://rustfs:9000 s3 mb s3://shopware-public
+                aws --endpoint-url http://rustfs:9000 s3api head-bucket --bucket shopware-private 2> /dev/null \
+                  || aws --endpoint-url http://rustfs:9000 s3 mb s3://shopware-private
+                aws --endpoint-url http://rustfs:9000 s3api put-bucket-policy \
+                  --bucket shopware-public \
+                  --policy '{"Version":"2012-10-17","Statement":[{"Sid":"PublicRead","Effect":"Allow","Principal":"*","Action":["s3:GetObject"],"Resource":["arn:aws:s3:::shopware-public/*"]}]}'
 
 volumes:
     db-data:
     redis-data:
-    minio-data:
+    rustfs-data:

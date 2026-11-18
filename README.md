@@ -6,7 +6,7 @@ It shows the reference project state after the practical lab **Preparing Shopwar
 
 It demonstrates how to:
 
-- Extend a local Shopware Docker Compose setup with Valkey and MinIO.
+- Extend a local Shopware Docker Compose setup with Valkey and RustFS.
 - Configure cache, sessions, and locks with Redis-compatible storage.
 - Configure public and private file storage with S3-compatible buckets.
 - Keep theme, asset, and sitemap files local for the training setup.
@@ -31,15 +31,17 @@ It is not a production template. The credentials, service names, and runtime set
 
 ## Optional: Run the Project Locally
 
-If you want to run this reference project locally, you still need to build the image, start the containers, create the MinIO buckets, and initialize the local Shopware database. You do not need local PHP or Composer for that; Docker uses the Shopware CLI image during the build.
+If you want to run this reference project locally, you still need to build the image, start the containers, create the S3-compatible buckets, and initialize the local Shopware database. You do not need local PHP or Composer for that; Docker uses the Shopware CLI image during the build.
 
 The Compose setup uses the same host ports as the practical lab:
 
 - `8080` for the Shopware storefront
 - `3306` for the MySQL database
 - `6379` for Valkey
-- `9000` for the MinIO API
-- `9001` for the MinIO console
+- `9000` for the RustFS S3 API
+- `9001` for the RustFS console
+
+The RustFS ports bind to `127.0.0.1` and are therefore available only from your local computer.
 
 If your own lab project is still running, stop it first from that project directory:
 
@@ -56,13 +58,19 @@ docker compose build shopware
 Start the supporting services first:
 
 ```bash
-docker compose up -d database redis minio
+docker compose up -d database redis rustfs
 ```
 
-Create the MinIO buckets:
+Wait until all three supporting services report a `healthy` status:
 
 ```bash
-docker compose run --rm minio-client
+docker compose ps
+```
+
+Create the public and private buckets through the S3 API:
+
+```bash
+docker compose run --rm s3-client
 ```
 
 Start Shopware:
@@ -96,7 +104,7 @@ Then open the storefront in your browser:
 http://localhost:8080
 ```
 
-Open the MinIO console in your browser:
+Open the RustFS console in your browser:
 
 ```txt
 http://localhost:9001
@@ -105,8 +113,10 @@ http://localhost:9001
 Use the local credentials from `compose.yaml`:
 
 ```txt
-minioadmin / minioadmin
+rustfsadmin / rustfsadmin
 ```
+
+RustFS prints a warning because these default credentials are publicly known. They are used only for this isolated local learning setup, whose RustFS ports are bound to `127.0.0.1`. Do not reuse them when the service is accessible beyond `localhost`.
 
 If you want to inspect the logs, run:
 
@@ -129,4 +139,4 @@ It is provided as an educational example and comes without a warranty and withou
 
 ## Contributing
 
-This project is part of the Shopware Academy curriculum.
+This project is part of the **Shopware Academy** curriculum.

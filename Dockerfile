@@ -4,13 +4,13 @@ WORKDIR /app
 
 ENV REDIS_URL=redis://redis:6379
 ENV LOCK_DSN=redis://redis:6379/2
-ENV S3_ENDPOINT=http://minio:9000
+ENV S3_ENDPOINT=http://rustfs:9000
 ENV S3_PUBLIC_URL=http://localhost:9000/shopware-public
 ENV S3_BUCKET=shopware-public
 ENV S3_BUCKET_PRIVATE=shopware-private
 ENV S3_REGION=eu-central-1
-ENV S3_ACCESS_KEY=minioadmin
-ENV S3_SECRET_KEY=minioadmin
+ENV S3_ACCESS_KEY=rustfsadmin
+ENV S3_SECRET_KEY=rustfsadmin
 
 COPY composer.json composer.lock ./
 RUN composer install --no-interaction --prefer-dist --no-scripts
